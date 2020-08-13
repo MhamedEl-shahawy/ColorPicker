@@ -1,23 +1,77 @@
-import React from 'react';
-import ColorBox from "./ColorBox";
+import React,{useState} from 'react';
+import { Link } from "react-router-dom";
+import { withStyles } from "@material-ui/styles";
+import Select from "@material-ui/core/Select";
+import MenuItem from "@material-ui/core/MenuItem";
+import Snackbar from "@material-ui/core/Snackbar";
+import IconButton from "@material-ui/core/IconButton";
+import CloseIcon from "@material-ui/icons/Close";
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
-import   "./Navbar.css";
+import styles from "./styles/NavbarStyles";
 
 
-function Navbar({level,changeLevel}) {  
-  return (
-    <header className="Navbar">
-    <div className="logo">
-     <a href="#">ColorPicker</a>
-    </div>
-    <div className="slider-container">
-     <span>Level: {level}</span>
-    <div className="slider">
-        <Slider defaultValue={level} min={100} max={900} onAfterChange={changeLevel} step={100} />
-    </div>
-    </div>
-    </header>
-  );
+function Navbar({level,changeLevel,handleFormatChange,classes,showingAllColors}) {  
+  const [format,setFormat] = useState("hex");
+  const [open,setOpen] = useState(false);
+  const handleFormat = (e) => {
+    setFormat(e.target.value);
+    handleFormatChange(e.target.value);
+  };
+  const closeSnackbar =() => {
+    setOpen(false)
+  };
+      return (
+      <header className={classes.Navbar}>
+        <div className={classes.logo}>
+          <Link to='/'>ColorPIcker</Link>
+        </div>
+        {showingAllColors && (
+          <div>
+            <span>Level: {level}</span>
+            <div className={classes.slider}>
+              <Slider
+                defaultValue={level}
+                min={100}
+                max={900}
+                step={100}
+                onAfterChange={changeLevel}
+              />
+            </div>
+          </div>
+        )}
+        <div className={classes.selectContainer}>
+          <Select value={format} onChange={handleFormat}>
+            <MenuItem value='hex'>HEX - #ffffff</MenuItem>
+            <MenuItem value='rgb'>RGB - rgb(255,255,255)</MenuItem>
+            <MenuItem value='rgba'>RGBA - rgba(255,255,255, 1.0)</MenuItem>
+          </Select>
+        </div>
+        <Snackbar
+          anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+          open={open}
+          autoHideDuration={3000}
+          message={
+            <span id='message-id'>
+              Format Changed To {format.toUpperCase()}
+            </span>
+          }
+          ContentProps={{
+            "aria-describedby": "message-id"
+          }}
+          onClose={closeSnackbar}
+          action={[
+            <IconButton
+              onClick={closeSnackbar}
+              color='inherit'
+              key='close'
+              aria-label='close'
+            >
+              <CloseIcon />
+            </IconButton>
+          ]}
+        />
+      </header>
+    );
 }
-export default Navbar;
+export default  withStyles(styles)(Navbar);
