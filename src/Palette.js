@@ -1,33 +1,48 @@
-import React,{useState} from 'react';
+import React, { Component } from "react";
 import ColorBox from "./ColorBox";
-import { withStyles } from "@material-ui/styles";
-import styles from "./styles/PaletteStyles";
 import Navbar from "./Navbar";
 import PaletteFooter from "./PaletteFooter";
+import { withStyles } from "@material-ui/styles";
+import styles from "./styles/PaletteStyles";
 
-function Palette({palette,paletteName,emoji,id,classes}) {
-  const [level,setLevel] = useState(500);
-  const [format,setFormat] = useState("hex");
-  const colorsEle = palette.colors[level].map((color)=><ColorBox background={color[format]} key={color.id} id={color.id} moreUrl={`/palette/${id}/${color.id}`} paletteId={id} name={color.name}/>);
-  const changeLevel = (newLevel)=>{
-      setLevel(newLevel)
-  };
-  const changeFormat = (val) =>{
-     setFormat(val);
-  };
-  return (
+class Palette extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { level: 500, format: "hex" };
+    this.changeLevel = this.changeLevel.bind(this);
+    this.changeFormat = this.changeFormat.bind(this);
+  }
+  changeLevel(level) {
+    this.setState({ level });
+  }
+  changeFormat(val) {
+    this.setState({ format: val });
+  }
+  render() {
+    const { colors, paletteName, emoji, id } = this.props.palette;
+    const { classes } = this.props;
+    const { level, format } = this.state;
+    const colorBoxes = colors[level].map(color => (
+      <ColorBox
+        background={color[format]}
+        name={color.name}
+        key={color.id}
+        moreUrl={`/palette/${id}/${color.id}`}
+        showingFullPalette
+      />
+    ));
+    return (
       <div className={classes.Palette}>
         <Navbar
           level={level}
-          changeLevel={changeLevel}
-          handleFormatChange={changeFormat}
+          changeLevel={this.changeLevel}
+          handleChange={this.changeFormat}
           showingAllColors
         />
-        <div className={classes.colors}>{colorsEle}</div>
+        <div className={classes.colors}>{colorBoxes}</div>
         <PaletteFooter paletteName={paletteName} emoji={emoji} />
       </div>
     );
+  }
 }
-
-
 export default withStyles(styles)(Palette);
